@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "bot_rio"
+version = "0.1.0"
+description = ""
+authors = ["Gabriel Gazola Milan <gabriel.gazola@poli.ufrj.br>"]
+license = "GPL-3.0"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+"discord.py" = "^1.7.3"
+requests = "^2.26.0"
+loguru = "^0.5.3"
+google-auth-oauthlib = "^0.4.6"
+gspread = "^4.0.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
