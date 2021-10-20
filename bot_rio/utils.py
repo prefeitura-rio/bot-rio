@@ -9,7 +9,44 @@ import requests
 from bot_rio.constants import constants
 
 
+def parse_idea(idea: str, mode: str) -> str:
+    """Parses an idea for Github or Google Sheets.
+    Args:
+        idea: The idea to be parsed.
+        mode: The mode to parse the idea in.
+    Returns:
+        The parsed idea.
+
+    Input format: [name/desc.]; [org.]; [tags]
+    If the idea doesn't follow the format, raise an error.
+    Output formats:
+        Github:
+            TODO.
+        Google Sheets:
+            [name/desc., org., tags]
+    """
+    if mode == 'github':
+        raise NotImplementedError("Github is still not supported!")
+    elif mode == 'gspread':
+        if ';' not in idea:
+            raise ValueError(
+                "A ideia deve seguir o formato: [nome/desc.]; [org.]; [tags]")
+        split = idea.split(';')
+        if len(split) != 3:
+            raise ValueError(
+                "A ideia deve seguir o formato: [nome/desc.]; [org.]; [tags]")
+        name, org, tags = split
+        if not name:
+            raise ValueError("A ideia deve ter um nome!")
+        if not org:
+            org = 'Rio'
+        if not tags:
+            tags = 'rio'
+        return [name, org, tags]
+
+
 def create_github_issue(title, body, repo_name):
+    """Creates an issue on Github"""
     url = f'https://api.github.com/repos/{repo_name}/issues'
     headers = {'Authorization': f'token {constants.GITHUB_TOKEN.value}'}
     data = {'title': title, 'body': body}
