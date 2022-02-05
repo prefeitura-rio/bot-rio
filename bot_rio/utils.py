@@ -17,7 +17,7 @@ def parse_idea(idea: str, mode: str) -> str:
     Returns:
         The parsed idea.
 
-    Input format: [name/desc.]; [org.]; [tags]
+    Input format: [name/desc.]; [author]; [org.]; [tags]
     If the idea doesn't follow the format, raise an error.
     Output formats:
         Github:
@@ -30,19 +30,21 @@ def parse_idea(idea: str, mode: str) -> str:
     elif mode == 'gspread':
         if ';' not in idea:
             raise ValueError(
-                "A ideia deve seguir o formato: [nome/desc.]; [org.]; [tags]")
+                "A ideia deve seguir o formato: [nome/desc.]; [responsável]; [org.]; [tags]")
         split = idea.split(';')
-        if len(split) != 3:
+        if len(split) != 4:
             raise ValueError(
-                "A ideia deve seguir o formato: [nome/desc.]; [org.]; [tags]")
-        name, org, tags = split
+                "A ideia deve seguir o formato: [nome/desc.]; [responsável]; [org.]; [tags]")
+        name, author, org, tags = split
         if not name:
             raise ValueError("A ideia deve ter um nome!")
+        if not author:
+            raise ValueError("A ideia deve ter um responsável!")
         if not org:
             org = 'Rio'
         if not tags:
             tags = 'rio'
-        return [name, org, tags]
+        return [name, author, org, tags]
 
 
 def create_github_issue(title, body, repo_name):

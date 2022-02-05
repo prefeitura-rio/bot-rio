@@ -12,6 +12,7 @@ requests = "^2.26.0"
 loguru = "^0.5.3"
 google-auth-oauthlib = "^0.4.6"
 gspread = "^4.0.1"
+google = "^3.0.0"
 
 [tool.poetry.dev-dependencies]
 

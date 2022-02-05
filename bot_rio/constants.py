@@ -13,10 +13,9 @@ class constants (Enum):
 
     # Envs
     DISCORD_TOKEN = nonull_getenv('DISCORD_TOKEN')
-    # GITHUB_TOKEN = nonull_getenv('GITHUB_TOKEN')
-    # GITHUB_REPO = nonull_getenv('GITHUB_REPO')
     IDEA_CHANNEL = nonull_getenv('IDEA_CHANNEL')
     IDEA_SPREADSHEET_ID = nonull_getenv('IDEA_SPREADSHEET_ID')
+    LANGUAGES_CHANNELS = nonull_getenv('LANGUAGES_CHANNELS').split(";")
     GCLOUD_CREDENTIALS = nonull_getenv('GCLOUD_CREDENTIALS')
 
     # Bot
