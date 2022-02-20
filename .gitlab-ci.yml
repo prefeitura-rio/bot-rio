@@ -1,0 +1,41 @@
+stages:
+  - lint
+  - build
+  - deploy
+
+hadolint:
+  stage: lint
+  image: hadolint/hadolint:v2.8.0-alpine
+  script:
+    - hadolint Dockerfile --ignore DL3013
+
+build:
+  stage: build
+  only:
+    - master
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t "$CI_REGISTRY_IMAGE":"$CI_COMMIT_SHA" .
+    - docker push "$CI_REGISTRY_IMAGE":"$CI_COMMIT_SHA"
+
+deploy:
+  stage: deploy
+  image: dtzar/helm-kubectl
+  only:
+    - master
+  variables:
+    SERVER: $SERVER
+    CERTIFICATE_AUTHORITY_DATA: $CERTIFICATE_AUTHORITY_DATA
+    USER_TOKEN: $USER_TOKEN
+  script:
+    - kubectl config set-cluster k8s --server="${SERVER}"
+    - sleep 0.5
+    - kubectl config set clusters.k8s.certificate-authority-data ${CERTIFICATE_AUTHORITY_DATA}
+    - kubectl config set-credentials gitlab --token="${USER_TOKEN}"
+    - kubectl config set-context default --cluster=k8s --user=gitlab
+    - kubectl config use-context default
+    - curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+    - chmod u+x ./kustomize
+    - ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE_API:TAG="$CI_REGISTRY_IMAGE":"$CI_COMMIT_SHA"
+    - ./kustomize build . | kubectl apply -n bot-rio -f -
+    - kubectl get services -n bot-rio

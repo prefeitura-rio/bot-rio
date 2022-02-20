@@ -1,6 +1,5 @@
 __all__ = ["bot"]
 
-import discord
 from discord.ext import commands
 from discord.ext.commands.context import Context
 from googlesearch import search
