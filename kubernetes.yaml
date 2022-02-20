@@ -1,0 +1,28 @@
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bot-rio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bot-rio
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: bot-rio
+    spec:
+      containers:
+        - name: bot-rio
+          image: gcr.io/PROJECT_ID/IMAGE_API:TAG
+          envFrom:
+            - secretRef:
+                name: bot-rio-envs
+      restartPolicy: Always
