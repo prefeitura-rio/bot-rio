@@ -15,6 +15,7 @@ class constants (Enum):
     DISCORD_TOKEN = nonull_getenv('DISCORD_TOKEN')
     IDEA_CHANNEL = nonull_getenv('IDEA_CHANNEL')
     IDEA_SPREADSHEET_ID = nonull_getenv('IDEA_SPREADSHEET_ID')
+    GERAL_CHANNEL = nonull_getenv('GERAL_CHANNEL')
     LANGUAGES_CHANNELS = nonull_getenv('LANGUAGES_CHANNELS').split(";")
     GCLOUD_CREDENTIALS = nonull_getenv('GCLOUD_CREDENTIALS')
 
