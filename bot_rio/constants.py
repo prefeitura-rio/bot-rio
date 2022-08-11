@@ -12,12 +12,13 @@ def nonull_getenv(env_name):
 class constants (Enum):
 
     # Envs
+    BOT_RIO_API_URL = nonull_getenv('BOT_RIO_API_URL')
     DISCORD_TOKEN = nonull_getenv('DISCORD_TOKEN')
+    GCLOUD_CREDENTIALS = nonull_getenv('GCLOUD_CREDENTIALS')
+    GERAL_CHANNEL = nonull_getenv('GERAL_CHANNEL')
     IDEA_CHANNEL = nonull_getenv('IDEA_CHANNEL')
     IDEA_SPREADSHEET_ID = nonull_getenv('IDEA_SPREADSHEET_ID')
-    GERAL_CHANNEL = nonull_getenv('GERAL_CHANNEL')
     LANGUAGES_CHANNELS = nonull_getenv('LANGUAGES_CHANNELS').split(";")
-    GCLOUD_CREDENTIALS = nonull_getenv('GCLOUD_CREDENTIALS')
 
     # Bot
     COMMAND_PREFIX = '!'
