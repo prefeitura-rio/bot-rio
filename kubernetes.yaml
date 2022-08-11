@@ -4,6 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bot-rio
+  namespace: bot-rio
 spec:
   replicas: 1
   selector:
@@ -21,7 +22,7 @@ spec:
     spec:
       containers:
         - name: bot-rio
-          image: gcr.io/PROJECT_ID/IMAGE_API:TAG
+          image: gcr.io/PROJECT_ID/IMAGE_NAME:TAG
           envFrom:
             - secretRef:
                 name: bot-rio-envs
