@@ -10,7 +10,8 @@ from loguru import logger
 from bot_rio.constants import constants
 from bot_rio.utils import (
     add_line_to_spreadsheet,
-    parse_idea
+    parse_idea,
+    parse_reference,
 )
 
 bot = commands.Bot(command_prefix=constants.COMMAND_PREFIX.value)
@@ -72,6 +73,42 @@ async def ideia(ctx: Context):
         )
         await ctx.send(
             f"🚀 Ideia registrada com sucesso!\n\n* Nome: {idea[0]}\n* Responsável: {idea[1]}\n* Órgão: {idea[2]}\n* Temas: {idea[3]}"
+        )
+    except Exception as e:
+        logger.error(e)
+        await ctx.send(f"🥲 Não foi possível catalogar a ideia! Erro: {e}")
+        return
+
+# https://discord.com/channels/891689044889698404/1006603086883721327
+
+
+@bot.command(
+    name='ref',
+    help='📋 Cataloga uma referência na planilha. O formato deve ser [tema]; [subtema]; [link]'
+)
+async def ref(ctx: Context):
+
+    # Check if the idea is in the correct channel
+    if str(ctx.channel.id) != constants.REFERENCES_CHANNEL.value:
+        await ctx.send("🙃 Esse comando não deve ser usado nesse canal!")
+        return
+
+    try:
+        # Get the idea
+        reference = parse_reference(
+            ctx.message.content[len(
+                constants.COMMAND_PREFIX.value) + 1 + len('ref'):],
+        )
+        logger.info(f"Referência: {reference}")
+
+        # Add it to the spreadsheet
+        add_line_to_spreadsheet(
+            constants.REFERENCES_SPREADSHEET_ID.value,
+            reference,
+            worksheet_name="Referencias",
+        )
+        await ctx.send(
+            f"🚀 Referência registrada com sucesso!\n\n* Tema: {reference[0]}\n* Subtema: {reference[1]}\n* Link: {reference[2]}"
         )
     except Exception as e:
         logger.error(e)

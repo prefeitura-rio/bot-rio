@@ -85,3 +85,35 @@ def parse_idea(idea: str, mode: str) -> str:
         if not tags:
             tags = 'rio'
         return [name, author, org, tags]
+
+
+def parse_reference(reference: str) -> str:
+    """Parses a reference for Google Sheets.
+    Args:
+        reference: The reference to be parsed.
+    Returns:
+        The parsed reference.
+
+    Input format: [tema]; [subtema]; [link]
+    If the reference doesn't follow the format, raise an error.
+    Output formats:
+        Github:
+            TODO.
+        Google Sheets:
+            [tema, subtema, link]
+    """
+    if ';' not in reference:
+        raise ValueError(
+            "A referência deve seguir o formato: [tema]; [subtema]; [link]")
+    split = reference.split(';')
+    if len(split) != 3:
+        raise ValueError(
+            "A referência deve seguir o formato: [tema]; [subtema]; [link]")
+    theme, subtheme, link = split
+    if not theme:
+        raise ValueError("A referência deve ter um tema!")
+    if not subtheme:
+        raise ValueError("A referência deve ter um subtema!")
+    if not link:
+        raise ValueError("A referência deve ter um link!")
+    return [theme, subtheme, link]
