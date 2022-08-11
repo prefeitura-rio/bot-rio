@@ -130,3 +130,6 @@ dmypy.json
 
 # Dask
 *.lock
+
+# VS Code
+.vscode
