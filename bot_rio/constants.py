@@ -19,6 +19,8 @@ class constants (Enum):
     IDEA_CHANNEL = nonull_getenv('IDEA_CHANNEL')
     IDEA_SPREADSHEET_ID = nonull_getenv('IDEA_SPREADSHEET_ID')
     LANGUAGES_CHANNELS = nonull_getenv('LANGUAGES_CHANNELS').split(";")
+    REFERENCES_CHANNEL = nonull_getenv('REFERENCES_CHANNEL')
+    REFERENCES_SPREADSHEET_ID = nonull_getenv('REFERENCES_SPREADSHEET_ID')
 
     # Bot
     COMMAND_PREFIX = '!'
