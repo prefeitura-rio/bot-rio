@@ -1,7 +1,7 @@
 __all__ = ["bot"]
 
 import discord
-from discord import Member
+from discord import Member, TextChannel
 from discord.ext import commands
 from discord.ext.commands.context import Context
 from googlesearch import search
@@ -30,13 +30,14 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member: Member):
-    logger.info(f'{member.name} entrou no servidor.')
-    await member.send(
-        f'Olá {member.name}, seja bem vindo ao servidor! :smile:'
-        '\nSinta-se livre para se apresentar em #apresente-se-aqui! Nos vemos por aí! :emd:'
+    channel: TextChannel = bot.get_channel(constants.GERAL_CHANNEL.value)
+    embed = discord.Embed(
+        title="Alô, alô, alô!",
+        description=(f"Olá {member.display_name}, seja bem-vindo(a)! :smile:\n"
+                     "Sinta-se livre para se apresentar em #apresente-se-aqui! Nos vemos por aí! :emd:"
+                     ),
     )
-    await bot.send_message(discord.Object(id=constants.GERAL_CHANNEL.value), 'Bem-vindo(a) ao servidor! :emd:')
-    logger.info('Mensagens de boas vindas enviadas.')
+    await channel.send(embed=embed)
 
 #########################
 #
