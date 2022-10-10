@@ -14,6 +14,7 @@ from bot_rio.constants import constants
 from bot_rio.utils import (
     add_line_to_spreadsheet,
     build_status_from_board,
+    build_status_from_sheet,
     get_trello_client,
     parse_idea,
     parse_reference,
@@ -206,6 +207,30 @@ async def ajuda(ctx: Context):
         for text in status_text:
             for split in smart_split(text, max_length=2000, separator="\n"):
                 await ctx.send(split)
+    except Exception as e:
+        logger.error(e)
+        await ctx.send(f"🥲 Não foi possível enviar o texto de status! Erro: {e}")
+        return
+
+
+@bot.command(
+    name='status_bases',
+    help='🎯 Lista os status das bases de dados'
+)
+async def status_bases(ctx: Context):
+    # Check if the command is in the correct channel
+    if str(ctx.channel.id) != constants.STATUS_CHANNEL.value:
+        await ctx.send("🙃 Esse comando não deve ser usado nesse canal!")
+        return
+
+    # React with a loading emoji
+    await ctx.message.add_reaction("🔍")
+
+    try:
+        status_text = build_status_from_sheet(
+            constants.BASES_SPREADSHEET_ID.value, constants.BASES_SHEET_NAME.value)
+        for split in smart_split(status_text, max_length=2000, separator="\n\n"):
+            await ctx.send(split)
     except Exception as e:
         logger.error(e)
         await ctx.send(f"🥲 Não foi possível enviar o texto de status! Erro: {e}")

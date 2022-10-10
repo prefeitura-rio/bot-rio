@@ -5,6 +5,7 @@ from typing import Dict, List
 
 from google.oauth2 import service_account
 import gspread
+import pandas as pd
 import pendulum
 import requests
 from trello import Board, List as TrelloList, TrelloClient
@@ -77,6 +78,42 @@ def build_status_from_board(board: Board) -> str:
         for card in lists[list_name].list_cards():
             status += f"- {card.name}\n"
         status += "\n"
+    return status
+
+
+def build_status_from_sheet(spreadsheet_id: str, worksheet_name: str = None, client: gspread.Client = None) -> str:
+    """
+    Builds a status string from Google Sheets
+    """
+    if not client:
+        client = get_gspread_client()
+    sheet = client.open_by_key(spreadsheet_id)
+    if worksheet_name:
+        sheet = sheet.worksheet(worksheet_name)
+    # Get last monday and friday
+    last_monday = get_last_monday().strftime('%d/%m/%Y')
+    last_friday = get_last_friday().strftime('%d/%m/%Y')
+    # Get snapshot timestamp
+    timestamp = pendulum.now(
+        tz="America/Sao_Paulo").strftime('%d/%m/%Y %H:%M:%S')
+    status = f"**Bases de Dados** (semana de {last_monday} a {last_friday}) - snapshot {timestamp}\n\n"
+    rows = sheet.get_all_values()
+    df = pd.DataFrame(rows[1:], columns=rows[0])
+    # Assert all needed columns exist
+    for column in [
+        "Base de Dados",
+        "Etapa",
+        "Previsão",
+        "Emoji",
+        "Status",
+        "Comentário"
+    ]:
+        if column not in df.columns:
+            raise ValueError(f"Coluna {column} não encontrada na planilha")
+    for _, row in df.iterrows():
+        status += f"{row['Emoji']} {row['Base de Dados']}\nEtapa: {row['Etapa']}\n"
+        status += f"Previsão: {row['Previsão']}\nComentário: {row['Comentário']}\n"
+        status += f"Status: {row['Status']}\n\n"
     return status
 
 

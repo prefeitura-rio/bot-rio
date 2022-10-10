@@ -12,6 +12,8 @@ def nonull_getenv(env_name):
 class constants (Enum):
 
     # Envs
+    BASES_SHEET_NAME = nonull_getenv('BASES_SHEET_NAME')
+    BASES_SPREADSHEET_ID = nonull_getenv('BASES_SPREADSHEET_ID')
     BOT_RIO_API_URL = nonull_getenv('BOT_RIO_API_URL')
     DISCORD_TOKEN = nonull_getenv('DISCORD_TOKEN')
     GCLOUD_CREDENTIALS = nonull_getenv('GCLOUD_CREDENTIALS')
