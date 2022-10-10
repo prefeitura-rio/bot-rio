@@ -13,6 +13,8 @@ loguru = "^0.5.3"
 google-auth-oauthlib = "^0.4.6"
 gspread = "^4.0.1"
 google = "^3.0.0"
+py-trello = "^0.18.0"
+pendulum = "^2.1.2"
 
 [tool.poetry.dev-dependencies]
 

@@ -1,17 +1,23 @@
 __all__ = ["bot"]
 
+from typing import List
+
 import discord
 from discord import Member, TextChannel
 from discord.ext import commands
 from discord.ext.commands.context import Context
 from googlesearch import search
 from loguru import logger
+from trello import Board
 
 from bot_rio.constants import constants
 from bot_rio.utils import (
     add_line_to_spreadsheet,
+    build_status_from_board,
+    get_trello_client,
     parse_idea,
     parse_reference,
+    smart_split,
 )
 
 bot = commands.Bot(command_prefix=constants.COMMAND_PREFIX.value)
@@ -150,4 +156,57 @@ async def ajuda(ctx: Context):
     except Exception as e:
         logger.error(e)
         await ctx.send(f"🥲 Não foi possível encontrar ajuda! Erro: {e}")
+        return
+
+
+@bot.command(
+    name='status',
+    help='🎯 Lista os status dos projetos do Escritório de Dados'
+)
+async def ajuda(ctx: Context):
+
+    # Check if the command is in the correct channel
+    if str(ctx.channel.id) != constants.STATUS_CHANNEL.value:
+        await ctx.send("🙃 Esse comando não deve ser usado nesse canal!")
+        return
+
+    # React with a loading emoji
+    await ctx.message.add_reaction("🔍")
+
+    try:
+        # Get Trello client
+        client = get_trello_client()
+    except Exception as e:
+        logger.error(e)
+        await ctx.send(f"🥲 Não foi possível conectar ao Trello! Erro: {e}")
+        return
+
+    # Get the boards we want
+    boards: List[Board] = []
+    for board_id in constants.TRELLO_STATUS_BOARD_IDS.value:
+        try:
+            boards.append(client.get_board(board_id))
+        except Exception as e:
+            logger.error(e)
+            await ctx.send(f"🥲 Não foi possível acessar o board com ID {board_id}! Erro: {e}")
+            return
+
+    # For each board, build the status text
+    status_text = []
+    for board in boards:
+        try:
+            status_text.append(build_status_from_board(board))
+        except Exception as e:
+            logger.error(e)
+            await ctx.send(f"🥲 Não foi possível gerar o status do board {board.name}! Erro: {e}")
+            return
+
+    try:
+        # Send the status texts
+        for text in status_text:
+            for split in smart_split(text, max_length=2000, separator="\n"):
+                await ctx.send(split)
+    except Exception as e:
+        logger.error(e)
+        await ctx.send(f"🥲 Não foi possível enviar o texto de status! Erro: {e}")
         return

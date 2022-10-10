@@ -21,6 +21,22 @@ class constants (Enum):
     LANGUAGES_CHANNELS = nonull_getenv('LANGUAGES_CHANNELS').split(";")
     REFERENCES_CHANNEL = nonull_getenv('REFERENCES_CHANNEL')
     REFERENCES_SPREADSHEET_ID = nonull_getenv('REFERENCES_SPREADSHEET_ID')
+    STATUS_CHANNEL = nonull_getenv('STATUS_CHANNEL')
+    TRELLO_KEY = nonull_getenv('TRELLO_KEY')
+    TRELLO_STATUS_BOARD_IDS = nonull_getenv(
+        'TRELLO_STATUS_BOARD_IDS').split(";")
+    TRELLO_TOKEN = nonull_getenv('TRELLO_TOKEN')
+
+    # Trello
+    TRELLO_LISTS = ["Entregas da semana anterior", "Prioridades da semana atual",
+                    "Tarefas planejadas para o futuro", "Bloqueios", "Metas"]
+    TRELLO_LISTS_EMOJIS = {
+        "Metas": "🎯",
+        "Bloqueios": "⏸️",
+        "Tarefas planejadas para o futuro": "⏭️",
+        "Prioridades da semana atual": "▶️",
+        "Entregas da semana anterior": "✅"
+    }
 
     # Bot
     COMMAND_PREFIX = '!'
