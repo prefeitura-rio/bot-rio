@@ -130,11 +130,6 @@ async def ref(ctx: Context):
 )
 async def ajuda(ctx: Context):
 
-    # Check if the command has been executed in one of the allowed channels
-    if str(ctx.channel.id) not in constants.LANGUAGES_CHANNELS.value:
-        await ctx.send("🙃 Esse comando não deve ser usado nesse canal!")
-        return
-
     try:
         # Get the query from the message
         query: str = ctx.message.content[len(
