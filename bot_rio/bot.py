@@ -87,8 +87,6 @@ async def ideia(ctx: Context):
         await ctx.send(f"🥲 Não foi possível catalogar a ideia! Erro: {e}")
         return
 
-# https://discord.com/channels/891689044889698404/1006603086883721327
-
 
 @bot.command(
     name='ref',
@@ -229,4 +227,52 @@ async def status_bases(ctx: Context):
     except Exception as e:
         logger.error(e)
         await ctx.send(f"🥲 Não foi possível enviar o texto de status! Erro: {e}")
+        return
+
+
+@bot.command(
+    name='link_tabela',
+    help='🔗 Cria um link para uma tabela do BigQuery'
+)
+async def link_tabela(ctx: Context):
+
+    try:
+        # Get information from the message.
+        # Accepted formats:
+        # - <project>.<dataset>.<table>
+        # - <project> <dataset>.<table>
+        # - <project> <dataset> <table>
+
+        # Get the message content
+        message_content: str = ctx.message.content[len(
+            constants.COMMAND_PREFIX.value) + 1 + len('link_tabela'):].strip()
+
+        if message_content == "":
+            await ctx.send("🙃 Você deve fornecer o caminho da tabela!")
+            return
+
+        # Split the message content both by spaces and dots
+        message_content = message_content.replace(".", " ")
+        message_content = message_content.split(" ")
+
+        # Check if the message content has the correct length
+        if len(message_content) != 3:
+            await ctx.send("🙃 O caminho da tabela deve ter 3 partes: <project> <dataset> <table>!")
+            return
+
+        # Get the project, dataset and table
+        project: str = message_content[0]
+        dataset: str = message_content[1]
+        table: str = message_content[2]
+
+        # Build the link
+        link: str = "https://console.cloud.google.com/bigquery?" + \
+            f"p={project}&d={dataset}&t={table}&page=table"
+
+        # Send the link
+        await ctx.send(f"🔗 {link}", mention_author=True)
+
+    except Exception as e:
+        logger.error(e)
+        await ctx.send(f"🥲 Não foi possível gerar o link! Erro: {e}")
         return
