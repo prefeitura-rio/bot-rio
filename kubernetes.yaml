@@ -26,4 +26,11 @@ spec:
           envFrom:
             - secretRef:
                 name: bot-rio-envs
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 20m
+              memory: 128Mi
       restartPolicy: Always
