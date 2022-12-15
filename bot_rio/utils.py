@@ -35,37 +35,17 @@ def build_status_from_board(board: Board) -> str:
     Format:
     <Board name> (semana de <last_monday> a <last_friday>) - snapshot <timestamp>
 
-    ✅ Entregas da semana anterior:
-    - <Card in list "Entregas da última semana>
-    - <Card in list "Entregas da última semana>
+    <List name>:
+    - <Card name>
+    - <Card name>
 
-    ▶️ Prioridades da semana atual:
-    - <Card in list "Prioridades da semana>
-    - <Card in list "Prioridades da semana>
-
-    ⏭️ Tarefas planejadas para o futuro:
-    - <Card in list "Backlog">
-    - <Card in list "Backlog">
-
-    ⏸️ Bloqueios:
-    - <Card in list "Bloqueios">
-    - <Card in list "Bloqueios">
-
-    🎯 Metas:
-    - <Card in list "Metas">
-    - <Card in list "Metas">
+    <List name>:
+    - <Card name>
+    - <Card name>
     """
     # Assert that all mentioned lists exist and get them
-    lists: Dict[str, TrelloList] = {}
-    all_lists = board.list_lists()
-    for list_name in constants.TRELLO_LISTS.value:
-        for trello_list in all_lists:
-            if trello_list.name == list_name:
-                lists[list_name] = trello_list
-                break
-        else:
-            raise ValueError(
-                f"Lista {list_name} não encontrada no quadro {board.name}")
+    trello_lists: List[TrelloList] = board.list_lists()
+    trello_lists.reverse()
     # Get last monday and friday
     last_monday = get_last_monday().strftime('%d/%m/%Y')
     last_friday = get_last_friday().strftime('%d/%m/%Y')
@@ -73,9 +53,11 @@ def build_status_from_board(board: Board) -> str:
     timestamp = pendulum.now(
         tz="America/Sao_Paulo").strftime('%d/%m/%Y %H:%M:%S')
     status = f"**{board.name}** (semana de {last_monday} a {last_friday}) - snapshot {timestamp}\n\n"
-    for list_name in constants.TRELLO_LISTS.value:
-        status += f"{constants.TRELLO_LISTS_EMOJIS.value[list_name]} {list_name}:\n"
-        for card in lists[list_name].list_cards():
+    for trello_list in trello_lists:
+        if trello_list.name.startswith("🔒"):
+            continue
+        status += f"{trello_list.name}:\n"
+        for card in trello_list.list_cards():
             status += f"- {card.name}\n"
         status += "\n"
     return status

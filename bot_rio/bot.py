@@ -157,7 +157,7 @@ async def ajuda(ctx: Context):
     name='status',
     help='🎯 Lista os status dos projetos do Escritório de Dados'
 )
-async def ajuda(ctx: Context):
+async def status(ctx: Context):
 
     # Check if the command is in the correct channel
     if str(ctx.channel.id) != constants.STATUS_CHANNEL.value:
@@ -168,6 +168,32 @@ async def ajuda(ctx: Context):
     await ctx.message.add_reaction("🔍")
 
     try:
+        # Get query from the message
+        query: str = ctx.message.content[len(
+            constants.COMMAND_PREFIX.value) + 1 + len('status'):].strip()
+        logger.info(f"Query: {query}")
+        # Assert that query is not empty, has only one word and is a valid input
+        if query == "":
+            # TODO: When implementing more projects, change this.
+            query = "infra"
+        elif len(query.split()) > 1:
+            await ctx.send("🙃 Você só pode pedir status de uma área por vez!")
+            return
+        elif query not in ["infra", "estudio", "parcerias", "formação"]:
+            message = "🙃 Você só pode pedir status de uma das seguintes áreas: \n\n"
+            message += "• infra\n"
+            message += "• estudio\n"
+            message += "• parcerias\n"
+            message += "• formação\n\n"
+            message += "Basta digitar `!status [área]`"
+            await ctx.send(message, mention_author=True)
+            return
+    except Exception as e:
+        logger.error(e)
+        await ctx.send(f"🥲 Não foi possível compreender seu pedido! Erro: {e}")
+        return
+
+    try:
         # Get Trello client
         client = get_trello_client()
     except Exception as e:
@@ -175,31 +201,30 @@ async def ajuda(ctx: Context):
         await ctx.send(f"🥲 Não foi possível conectar ao Trello! Erro: {e}")
         return
 
-    # Get the boards we want
-    boards: List[Board] = []
-    for board_id in constants.TRELLO_STATUS_BOARD_IDS.value:
-        try:
-            boards.append(client.get_board(board_id))
-        except Exception as e:
-            logger.error(e)
-            await ctx.send(f"🥲 Não foi possível acessar o board com ID {board_id}! Erro: {e}")
+    try:
+        # Get the board we want
+        if query == "infra":
+            board = client.get_board(constants.TRELLO_STATUS_BOARD_INFRA.value)
+        else:
+            await ctx.send("🙃 Ainda não temos status para essa área!")
             return
+    except Exception as e:
+        logger.error(e)
+        await ctx.send(f"🥲 Não foi possível acessar o board com ID {constants.TRELLO_STATUS_BOARD_INFRA.value}! Erro: {e}")
+        return
 
-    # For each board, build the status text
-    status_text = []
-    for board in boards:
-        try:
-            status_text.append(build_status_from_board(board))
-        except Exception as e:
-            logger.error(e)
-            await ctx.send(f"🥲 Não foi possível gerar o status do board {board.name}! Erro: {e}")
-            return
+    # Build the status text
+    try:
+        status_text = build_status_from_board(board)
+    except Exception as e:
+        logger.error(e)
+        await ctx.send(f"🥲 Não foi possível gerar o status do board {board.name}! Erro: {e}")
+        return
 
     try:
         # Send the status texts
-        for text in status_text:
-            for split in smart_split(text, max_length=2000, separator="\n"):
-                await ctx.send(split)
+        for split in smart_split(status_text, max_length=2000, separator="\n"):
+            await ctx.send(split)
     except Exception as e:
         logger.error(e)
         await ctx.send(f"🥲 Não foi possível enviar o texto de status! Erro: {e}")

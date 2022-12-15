@@ -25,8 +25,7 @@ class constants (Enum):
     REFERENCES_SPREADSHEET_ID = nonull_getenv('REFERENCES_SPREADSHEET_ID')
     STATUS_CHANNEL = nonull_getenv('STATUS_CHANNEL')
     TRELLO_KEY = nonull_getenv('TRELLO_KEY')
-    TRELLO_STATUS_BOARD_IDS = nonull_getenv(
-        'TRELLO_STATUS_BOARD_IDS').split(";")
+    TRELLO_STATUS_BOARD_INFRA = nonull_getenv('TRELLO_STATUS_BOARD_INFRA')
     TRELLO_TOKEN = nonull_getenv('TRELLO_TOKEN')
 
     # Trello
