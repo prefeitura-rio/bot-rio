@@ -51,6 +51,9 @@ async def on_member_join(member: Member):
 
 @bot.event
 async def on_message(message: Message):
+    # Ignore messages with "@here" or "@everyone"
+    if "@here" in message.content or "@everyone" in message.content:
+        return
     if bot.user.mentioned_in(message):
         # React to the message adding the waiting emoji
         await message.add_reaction("⏳")
