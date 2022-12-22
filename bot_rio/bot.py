@@ -57,15 +57,19 @@ async def on_message(message: Message):
         # Get prompt from the message
         prompt = message.content.replace(f"<@{bot.user.id}>", "")
         # Get the response from OpenAI
-        response = openai.Completion.create(
-            prompt=prompt,
-            temperature=0,
-            max_tokens=300,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0,
-            model=constants.COMPLETIONS_MODEL.value,
-        )["choices"][0]["text"].strip(" \n")
+        try:
+            response = openai.Completion.create(
+                prompt=prompt,
+                temperature=0,
+                max_tokens=300,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0,
+                model=constants.COMPLETIONS_MODEL.value,
+            )["choices"][0]["text"].strip(" \n")
+        except Exception as e:
+            logger.error(e)
+            response = "🥲 Não consegui comunicar com o OpenAI. Tente novamente mais tarde!"
         # Remove the waiting emoji and add the OK emoji
         await message.remove_reaction("⏳", bot.user)
         await message.add_reaction("✅")
