@@ -21,6 +21,7 @@ class constants (Enum):
     IDEA_CHANNEL = nonull_getenv('IDEA_CHANNEL')
     IDEA_SPREADSHEET_ID = nonull_getenv('IDEA_SPREADSHEET_ID')
     LANGUAGES_CHANNELS = nonull_getenv('LANGUAGES_CHANNELS').split(";")
+    OPENAI_API_KEY = nonull_getenv('OPENAI_API_KEY')
     REFERENCES_CHANNEL = nonull_getenv('REFERENCES_CHANNEL')
     REFERENCES_SPREADSHEET_ID = nonull_getenv('REFERENCES_SPREADSHEET_ID')
     STATUS_CHANNEL = nonull_getenv('STATUS_CHANNEL')
@@ -44,6 +45,9 @@ class constants (Enum):
     DEFAULT_ISSUE_BODY = '''Issue criada automaticamente pelo Bot.rio!
 
     Favor preencher detalhes!'''
+
+    # OpenAI
+    COMPLETIONS_MODEL = "text-davinci-003"
 
     # Credentials
     GSPREAD_SCOPE = [

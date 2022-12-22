@@ -3,11 +3,12 @@ __all__ = ["bot"]
 from typing import List
 
 import discord
-from discord import Member, TextChannel
+from discord import Member, Message, TextChannel
 from discord.ext import commands
 from discord.ext.commands.context import Context
 from googlesearch import search
 from loguru import logger
+import openai
 from trello import Board
 
 from bot_rio.constants import constants
@@ -22,6 +23,7 @@ from bot_rio.utils import (
 )
 
 bot = commands.Bot(command_prefix=constants.COMMAND_PREFIX.value)
+openai.api_key = constants.OPENAI_API_KEY.value
 
 #########################
 #
@@ -45,6 +47,30 @@ async def on_member_join(member: Member):
                      ),
     )
     await channel.send(embed=embed)
+
+
+@bot.event
+async def on_message(message: Message):
+    if bot.user.mentioned_in(message):
+        # React to the message adding the waiting emoji
+        await message.add_reaction("⏳")
+        # Get prompt from the message
+        prompt = message.content.replace(f"<@{bot.user.id}>", "")
+        # Get the response from OpenAI
+        response = openai.Completion.create(
+            prompt=prompt,
+            temperature=0,
+            max_tokens=300,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0,
+            model=constants.COMPLETIONS_MODEL.value,
+        )["choices"][0]["text"].strip(" \n")
+        # Remove the waiting emoji and add the OK emoji
+        await message.remove_reaction("⏳", bot.user)
+        await message.add_reaction("✅")
+        # Send the response
+        await message.channel.send(response)
 
 #########################
 #
