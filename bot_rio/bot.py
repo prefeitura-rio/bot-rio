@@ -49,35 +49,35 @@ async def on_member_join(member: Member):
     await channel.send(embed=embed)
 
 
-@bot.event
-async def on_message(message: Message):
-    # Ignore messages with "@here" or "@everyone"
-    if "@here" in message.content or "@everyone" in message.content:
-        return
-    if bot.user.mentioned_in(message):
-        # React to the message adding the waiting emoji
-        await message.add_reaction("⏳")
-        # Get prompt from the message
-        prompt = message.content.replace(f"<@{bot.user.id}>", "")
-        # Get the response from OpenAI
-        try:
-            response = openai.Completion.create(
-                prompt=prompt,
-                temperature=0,
-                max_tokens=300,
-                top_p=1,
-                frequency_penalty=0,
-                presence_penalty=0,
-                model=constants.COMPLETIONS_MODEL.value,
-            )["choices"][0]["text"].strip(" \n")
-        except Exception as e:
-            logger.error(e)
-            response = "🥲 Não consegui comunicar com o OpenAI. Tente novamente mais tarde!"
-        # Remove the waiting emoji and add the OK emoji
-        await message.remove_reaction("⏳", bot.user)
-        await message.add_reaction("✅")
-        # Send the response
-        await message.channel.send(response)
+# @bot.event
+# async def on_message(message: Message):
+#     # Ignore messages with "@here" or "@everyone"
+#     if "@here" in message.content or "@everyone" in message.content:
+#         return
+#     if bot.user.mentioned_in(message):
+#         # React to the message adding the waiting emoji
+#         await message.add_reaction("⏳")
+#         # Get prompt from the message
+#         prompt = message.content.replace(f"<@{bot.user.id}>", "")
+#         # Get the response from OpenAI
+#         try:
+#             response = openai.Completion.create(
+#                 prompt=prompt,
+#                 temperature=0,
+#                 max_tokens=300,
+#                 top_p=1,
+#                 frequency_penalty=0,
+#                 presence_penalty=0,
+#                 model=constants.COMPLETIONS_MODEL.value,
+#             )["choices"][0]["text"].strip(" \n")
+#         except Exception as e:
+#             logger.error(e)
+#             response = "🥲 Não consegui comunicar com o OpenAI. Tente novamente mais tarde!"
+#         # Remove the waiting emoji and add the OK emoji
+#         await message.remove_reaction("⏳", bot.user)
+#         await message.add_reaction("✅")
+#         # Send the response
+#         await message.channel.send(response)
 
 #########################
 #
