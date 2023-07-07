@@ -1,5 +1,9 @@
 FROM python:3.9-slim
 
+# Python-specific environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
 # Setup virtual environment and poetry
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
