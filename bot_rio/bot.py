@@ -1,5 +1,6 @@
 __all__ = ["bot"]
 
+from datetime import date
 from typing import List
 
 import discord
@@ -9,7 +10,7 @@ from discord.ext.commands.context import Context
 from googlesearch import search
 from loguru import logger
 import openai
-from trello import Board
+# from trello import Board
 
 from bot_rio.constants import constants
 from bot_rio.utils import (
@@ -17,8 +18,11 @@ from bot_rio.utils import (
     build_status_from_board,
     build_status_from_sheet,
     get_trello_client,
+    is_in_vacation,
     parse_idea,
     parse_reference,
+    redis_get,
+    redis_set,
     smart_split,
 )
 
@@ -49,35 +53,43 @@ async def on_member_join(member: Member):
     await channel.send(embed=embed)
 
 
-# @bot.event
-# async def on_message(message: Message):
-#     # Ignore messages with "@here" or "@everyone"
-#     if "@here" in message.content or "@everyone" in message.content:
-#         return
-#     if bot.user.mentioned_in(message):
-#         # React to the message adding the waiting emoji
-#         await message.add_reaction("⏳")
-#         # Get prompt from the message
-#         prompt = message.content.replace(f"<@{bot.user.id}>", "")
-#         # Get the response from OpenAI
-#         try:
-#             response = openai.Completion.create(
-#                 prompt=prompt,
-#                 temperature=0,
-#                 max_tokens=300,
-#                 top_p=1,
-#                 frequency_penalty=0,
-#                 presence_penalty=0,
-#                 model=constants.COMPLETIONS_MODEL.value,
-#             )["choices"][0]["text"].strip(" \n")
-#         except Exception as e:
-#             logger.error(e)
-#             response = "🥲 Não consegui comunicar com o OpenAI. Tente novamente mais tarde!"
-#         # Remove the waiting emoji and add the OK emoji
-#         await message.remove_reaction("⏳", bot.user)
-#         await message.add_reaction("✅")
-#         # Send the response
-#         await message.channel.send(response)
+@bot.event
+async def on_message(message: Message):
+    # Get all mentions
+    mentions: List[Member] = message.mentions
+    # If anyone is mentioned, check if they are in vacation
+    if len(mentions) > 0:
+        vacation_message = ""
+        vacation_warnings_key = "bot_rio__vacation_warnings"
+        # Get vacation warnings dict from Redis
+        vacation_warnings = redis_get(vacation_warnings_key)
+        if not vacation_warnings:
+            vacation_warnings = {}
+        # If today's date is not in the dict, reset it with today's date
+        today: date = date(year=2023, month=7, day=13)
+        if today.isoformat() not in vacation_warnings:
+            vacation_warnings = {today.isoformat(): []}
+        # Check if any of the mentioned users are in vacation
+        for mention in mentions:
+            # If we've already checked/warned about this user today, skip
+            if mention.id in vacation_warnings[today.isoformat()]:
+                continue
+            # Check if the user is in vacation
+            vacation, end_date = is_in_vacation(
+                discord_id=mention.id, date_=today)
+            if vacation:
+                if vacation_message == "":
+                    vacation_message = "🏖️ **Aviso de férias** 🏖️\n\n"
+                vacation_message += f"👉 {mention.mention} está de férias até {end_date.strftime('%d/%m/%Y')}!\n"
+            # Add the user to the list of warned users
+            vacation_warnings[today.isoformat()].append(mention.id)
+            # Update redis
+            redis_set(vacation_warnings_key, vacation_warnings)
+        # If there are any vacation messages, send them
+        if vacation_message != "":
+            await message.channel.send(vacation_message)
+    # If none of the above conditions are met, process the command
+    await bot.process_commands(message)
 
 #########################
 #

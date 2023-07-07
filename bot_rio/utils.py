@@ -1,12 +1,13 @@
 import base64
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import json
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from google.oauth2 import service_account
 import gspread
 import pandas as pd
 import pendulum
+from redis_pal import RedisPal
 import requests
 from trello import Board, List as TrelloList, TrelloClient
 
@@ -156,6 +157,26 @@ def get_trello_client() -> TrelloClient:
     )
 
 
+def is_in_vacation(discord_id: str, date_: date) -> Tuple[bool, date]:
+    """
+    Checks whether this user is in vacation today
+    """
+    base_url = constants.BOT_RIO_API_URL.value
+    base_url = base_url.rstrip('/')
+    url = f"{base_url}/vacations/?discord_id={discord_id}"
+    headers = {"Authorization": f"Token {constants.BOT_RIO_API_TOKEN.value}"}
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    data = response.json()
+    results = data.get('results', [])
+    for result in results:
+        start_date = datetime.strptime(result['start_date'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(result['end_date'], '%Y-%m-%d').date()
+        if start_date <= date_ <= end_date:
+            return True, end_date
+    return False, None
+
+
 def parse_idea(idea: str, mode: str) -> str:
     """Parses an idea for Github or Google Sheets.
     Args:
@@ -224,6 +245,20 @@ def parse_reference(reference: str) -> str:
     if not link:
         raise ValueError("A referência deve ter um link!")
     return [theme, subtheme, link]
+
+
+def redis_get(key: str, client: RedisPal = None):
+    """Gets a value from Redis"""
+    if not client:
+        client = RedisPal.from_url(constants.REDIS_CONNECTION_URL.value)
+    return client.get(key)
+
+
+def redis_set(key: str, value: str, client: RedisPal = None):
+    """Sets a value in Redis"""
+    if not client:
+        client = RedisPal.from_url(constants.REDIS_CONNECTION_URL.value)
+    client.set(key, value)
 
 
 def smart_split(
