@@ -66,7 +66,7 @@ async def on_message(message: Message):
         if not vacation_warnings:
             vacation_warnings = {}
         # If today's date is not in the dict, reset it with today's date
-        today: date = date(year=2023, month=7, day=13)
+        today: date = date.today()
         if today.isoformat() not in vacation_warnings:
             vacation_warnings = {today.isoformat(): []}
         # Check if any of the mentioned users are in vacation
